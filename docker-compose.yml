@@ -1,0 +1,31 @@
+# Use root/example as user/password credentials
+version: '3.1'
+
+networks:
+    mysql_shapefiles:
+        driver: bridge
+
+services:
+    db:
+        image: mariadb:latest
+        restart: always
+        networks:
+            - mysql_shapefiles
+        ports:
+            - "3306:3306"
+        volumes:
+            - ${PWD}/check.sh:/check.sh
+        environment:
+            MYSQL_ROOT_PASSWORD: example
+    seed:
+        image: shupp/shapefile-seed-client:latest
+        build:
+            context: ./
+            dockerfile: Dockerfile
+        restart: "no"
+        networks:
+            - mysql_shapefiles
+        volumes:
+            - ${PWD}/timezones-with-oceans.shapefile.zip:/timezones-with-oceans.shapefile.zip
+        environment:
+            MYSQL_ROOT_PASSWORD: example
